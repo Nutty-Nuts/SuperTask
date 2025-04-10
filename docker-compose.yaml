@@ -1,62 +1,157 @@
 services:
+  # This service/container is the Docker container that is used to contain and 
+  # run the database.
   database:
     build:
       context: ./database/
       dockerfile: Dockerfile
+
     restart: always
+
+    # The following are the environment variables that will be used by postgres
+    # to initialize a postgres database (defining users, passwords, databases 
+    # & etc.)
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: database
       POSTGRES_PASSWORD_FILE: /run/secrets/database_password
+
+    # The following are the volumes used by the database for persistent storage
     volumes:
       - pgsql_data:/var/lib/postgresql/data
+
+    # The following is a healthcheck that ensures that the database is ready to
+    # accept connections
     healthcheck:
-      test: ["CMD", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+    # The following is a secret that will copy a file in the host and will be
+    # used to define the password of the database.
     secrets:
       - database_password
+
+    # This will expose the container port 5432 to the host port 5432. This 
+    # allows the database to be accessible to the host through the host's port
+    # 5432
     ports:
       - 5432:5432
+
+    # This ensures that the containers are able to communicate with each other.
     networks:
       - app_network
 
+  # This service/container is the Docker container that is used to contain and 
+  # run the backend.
   backend:
     build:
       context: ./backend/ 
       dockerfile: Dockerfile
+
     restart: always 
+
+    # The following are the environment variables that will be used by the
+    # backend to perform specific tasks (e.g. connecting to the database)
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: database
       POSTGRES_PASSWORD_FILE: /run/secrets/database_password
       POSTGRES_PORT: 5432
+
+    # The following is a secret that will copy a file in the host that contains
+    # the password of the database and will be used to connect the backend to
+    # the database.
+    secrets:
+      - database_password
+
+    # The following defines specific files and directories that docker will
+    # monitor for changes and apply the appropriate action when said changes
+    # occur.
+    develop:
+      watch:
+        # This will watch for changes in the dependencies of the backend and
+        # rebuild the container when said changes occur
+        - path: ./backend/package.json
+          action: rebuild
+
+        # This will watch for changes in the files, directories, and source code
+        # and sync any changes to the container when said changes occur.
+        - path: ./backend
+          target: /app
+          action: sync
+
+    # This will expose the container port 3000 to the host port 3000. This 
+    # allows the backend to be accessible to the host through the host's port
+    # 3000
     ports:
       - 3000:3000
+
+    # This ensures that the backend will only start after the database has 
+    # finished starting up and has completed all healthchecks successfully
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+
+    # This ensures that the containers are able to communicate with each other.
     networks:
       - app_network
 
+  
+  # This service/container is the Docker container that is used to contain and 
+  # run the frontend.
   frontend:
     build:
       context: ./frontend/ 
       dockerfile: Dockerfile
+
     restart: always
+
+    # The following defines specific files and directories that docker will
+    # monitor for changes and apply the appropriate action when said changes
+    # occur.
+    develop:
+      watch:
+        # This will watch for changes in the dependencies of the backend and
+        # rebuild the container when said changes occur
+        - path: ./frontend/package.json
+          action: rebuild
+
+        # This will watch for changes in the files, directories, and source code
+        # and sync any changes to the container when said changes occur.
+        - path: ./frontend
+          target: /app
+          action: sync
+
+    # This will expose the container port 5173 to the host port 5173. This 
+    # allows the frontend to be accessible to the host through the host's port
+    # 5173
     ports:
       - 5173:5173
+
+    # This ensures that the frontend will only start after the database has
+    # finished its healthchecks and finishes starting up and after the backend 
+    # has finished starting up
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+      database:
+        condition: service_healthy
+
+    # This ensures that the containers are able to communicate with each other.
     networks:
       - app_network
 
 
 secrets:
+  # This secret specifies where the password of the database user is stored
+  # The referenced file should be in `.gitignore` and `.dockerignore`
   database_password:
     file: ./database/secrets/password.txt
 
 volumes:
+  # This is the volume used by the postgres database for persistent storage
   pgsql_data:
 
 networks:
