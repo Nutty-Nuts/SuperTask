@@ -1,0 +1,64 @@
+services:
+  database:
+    build:
+      context: ./database/
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: database
+      POSTGRES_PASSWORD_FILE: /run/secrets/database_password
+    volumes:
+      - pgsql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - database_password
+    ports:
+      - 5432:5432
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: ./backend/ 
+      dockerfile: Dockerfile
+    restart: always 
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: database
+      POSTGRES_PASSWORD_FILE: /run/secrets/database_password
+      POSTGRES_PORT: 5432
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: ./frontend/ 
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 5173:5173
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+
+secrets:
+  database_password:
+    file: ./database/secrets/password.txt
+
+volumes:
+  pgsql_data:
+
+networks:
+  app_network:
+    driver: bridge
