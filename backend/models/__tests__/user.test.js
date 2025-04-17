@@ -2,7 +2,6 @@ import { createUser, getUser, updateUser, deleteUser } from "../user.js";
 import { test, expect, describe } from "vitest";
 import { prismaMock } from "../../singleton.js";
 import bcrypt from "bcrypt";
-import prisma from "../../client.js";
 
 describe("UNIT TEST SUITE FOR 'createUser()' FUNCTION", () => {
   test("createUser() should create a user if all fields are complete", async () => {
