@@ -1,2 +1,2 @@
-# SuperTask
-An application that specializes in managing your tasks.
+# groupG
+This is the official repo for CSCC22 Group G
