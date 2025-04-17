@@ -151,3 +151,38 @@ describe("UNIT TEST SUITE FOR 'updateUser()'", () => {
     await expect(updateUser(input.fields, input.data)).resolves.toEqual(output);
   });
 });
+
+describe("UNIT TEST SUITE FOR 'deleteUser()'", () => {
+  test("deleteUser() should return the deleted user then deleting a user", async () => {
+    const input = {
+      email: "sethlowell@pubsec.net",
+    };
+    const output = {
+      id: "971d14e0-7ba5-4980-a51b-dc8a6c0275bd",
+      name: "Seth Lowell",
+      email: "sethlowell@pubsec.net",
+      password: "$2a$12$5jFoFH12tMYU8uz6RAkxlOkf1pE79CbzUocebO0/VEb2q9QYiV2c2",
+    };
+    const mock = {
+      id: "971d14e0-7ba5-4980-a51b-dc8a6c0275bd",
+      name: "Seth Lowell",
+      email: "sethlowell@pubsec.net",
+      password: "$2a$12$5jFoFH12tMYU8uz6RAkxlOkf1pE79CbzUocebO0/VEb2q9QYiV2c2",
+    };
+
+    prismaMock.user.delete.mockResolvedValue(mock);
+
+    await expect(deleteUser(input)).resolves.toEqual(output);
+  });
+
+  test("deleteUser() should throw an error when the user being deleted does not exist", async () => {
+    const input = {
+      email: "zhuyuan@pubsec.net",
+    };
+    const output = new Error("USER-DELETE_USER_DOES_NOT_EXIST");
+
+    prismaMock.user.delete.mockResolvedValue(new Error());
+
+    await expect(deleteUser(input)).resolves.toEqual(output);
+  });
+});
