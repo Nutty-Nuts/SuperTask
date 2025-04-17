@@ -31,9 +31,40 @@ describe("UNIT TEST SUITE FOR 'createUser()' FUNCTION", () => {
       email: "janedoe@pubsec.net",
       password: "junkfoodlover123",
     };
-    const output = new Error("USER_INCOMPLETE_FIELDS");
+    const output = new Error("USER-CREATE_INCOMPLETE_FIELDS");
 
     await expect(createUser(input)).resolves.toEqual(output);
+  });
+});
+
+describe("UNIT TEST SUITE for 'getUser()'", () => {
+  test("getUser() should get a user based on the provided fields", async () => {
+    const input = {
+      email: "janedoe@pubsec.net",
+    };
+    const output = {
+      name: "Jane Doe",
+      email: "janedoe@pubsec.net",
+      password: "$2a$12$lBjhVDONpSnZPPtrTtdtvO0C8evalRM.TrGkUQ1wHwonsqs4bwvum",
+    };
+    const mock = {
+      name: "Jane Doe",
+      email: "janedoe@pubsec.net",
+      password: "$2a$12$lBjhVDONpSnZPPtrTtdtvO0C8evalRM.TrGkUQ1wHwonsqs4bwvum",
+    };
+
+    prismaMock.user.findUnique.mockResolvedValue(mock);
+
+    await expect(getUser(input)).resolves.toEqual(output);
+  });
+
+  test("getUser() should throw an error if there are no id or email fields provided", async () => {
+    const input = {
+      name: "Jane Doe",
+    };
+    const output = new Error("USER-READ_NO_UNIQUE_FIELDS_PROVIDED");
+
+    await expect(getUser(input)).resolves.toEqual(output);
   });
 });
 
@@ -93,7 +124,7 @@ describe("UNIT TEST SUITE FOR 'updateUser()'", () => {
         id: "4d67a5d9-ef2b-4bf8-8fa2-00f7b914f78c",
       },
     };
-    const output = new Error("USER_ATTEMPT_TO_UPDATE_ID");
+    const output = new Error("USER-UPDATE_ATTEMPT_TO_UPDATE_ID");
 
     await expect(updateUser(input.fields, input.data)).resolves.toEqual(output);
   });
@@ -107,7 +138,7 @@ describe("UNIT TEST SUITE FOR 'updateUser()'", () => {
         email: "sethlowell@pubsec.net",
       },
     };
-    const output = new Error("USER_UPDATE_EMAIL_TO_NON_UNIQUE_EMAIL");
+    const output = new Error("USER-UPDATE_PROVIDED_NON_UNIQUE_EMAIL");
     const mock = {
       id: "971d14e0-7ba5-4980-a51b-dc8a6c0275bd",
       name: "Seth Lowell",
