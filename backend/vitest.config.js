@@ -12,9 +12,16 @@ if (process.env.TESTING_TYPE === "unit") {
     test: {
       clearMocks: true,
       environment: "node",
-      setupFiles: ["./src/singleton.js"],
+      setupFiles: ["./singleton.js"],
       include: ["**/*.test.js"],
-      exclude: ["**/*.integration.test.js"],
+      exclude: [
+        "**/*.integration.test.js",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/cypress/**",
+        "**/.{idea,git,cache,output,temp}/**",
+        "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
+      ],
     },
   });
 } else {
