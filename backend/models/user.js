@@ -74,3 +74,17 @@ export async function updateUser(fields, data) {
     data: data,
   });
 }
+
+/**
+ * Get a user.
+ * @param {{id: String, name: String email: String}} fields - object containing information about a user.
+ */
+export async function deleteUser(fields) {
+  try {
+    return await prisma.user.delete({
+      where: fields,
+    });
+  } catch (error) {
+    return new Error("USER-DELETE_USER_DOES_NOT_EXIST");
+  }
+}
