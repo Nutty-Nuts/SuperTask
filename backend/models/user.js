@@ -14,7 +14,7 @@ export async function createUser(user) {
     user.hasOwnProperty("password");
 
   if (!isComplete) {
-    return new Error("USER_INCOMPLETE_FIELDS");
+    return new Error("USER-CREATE_INCOMPLETE_FIELDS");
   }
 
   const salt = bcrypt.genSaltSync(saltRounds);
@@ -24,6 +24,23 @@ export async function createUser(user) {
 
   return await prisma.user.create({
     data: user,
+  });
+}
+
+/**
+ * Get a user.
+ * @param {{id: String, name: String email: String}} fields - object containing information about a user.
+ */
+export async function getUser(fields) {
+  const hasUniqueFields =
+    fields.hasOwnProperty("id") || fields.hasOwnProperty("email");
+
+  if (!hasUniqueFields) {
+    return new Error("USER-READ_NO_UNIQUE_FIELDS_PROVIDED");
+  }
+
+  return await prisma.user.findUnique({
+    where: fields,
   });
 }
 
@@ -41,14 +58,14 @@ export async function updateUser(fields, data) {
   }
 
   if (data.hasOwnProperty("id")) {
-    return new Error("USER_ATTEMPT_TO_UPDATE_ID");
+    return new Error("USER-UPDATE_ATTEMPT_TO_UPDATE_ID");
   }
 
   if (data.hasOwnProperty("email")) {
     const instance = await prisma.user.findUnique({ where: data.email });
 
     if (instance !== null) {
-      return new Error("USER_UPDATE_EMAIL_TO_NON_UNIQUE_EMAIL");
+      return new Error("USER-UPDATE_PROVIDED_NON_UNIQUE_EMAIL");
     }
   }
 
