@@ -26,3 +26,34 @@ export async function createUser(user) {
     data: user,
   });
 }
+
+/**
+ * Update a user.
+ * @param {{id: String, email: String}} fields - object containing information about a user.
+ * @param {{name: String, email: String, password: String}} data - object containing information about a user.
+ */
+export async function updateUser(fields, data) {
+  if (data.hasOwnProperty("password")) {
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hashedPassword = bcrypt.hashSync(data.password, salt);
+
+    data = { ...data, password: hashedPassword };
+  }
+
+  if (data.hasOwnProperty("id")) {
+    return new Error("USER_ATTEMPT_TO_UPDATE_ID");
+  }
+
+  if (data.hasOwnProperty("email")) {
+    const instance = await prisma.user.findUnique({ where: data.email });
+
+    if (instance !== null) {
+      return new Error("USER_UPDATE_EMAIL_TO_NON_UNIQUE_EMAIL");
+    }
+  }
+
+  return await prisma.user.update({
+    where: fields,
+    data: data,
+  });
+}
