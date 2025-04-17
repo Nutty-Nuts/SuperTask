@@ -181,7 +181,9 @@ describe("UNIT TEST SUITE FOR 'deleteUser()'", () => {
     };
     const output = new Error("USER-DELETE_USER_DOES_NOT_EXIST");
 
-    prismaMock.user.delete.mockResolvedValue(new Error());
+    prismaMock.user.delete.mockImplementation((input) => {
+      throw new Error();
+    });
 
     await expect(deleteUser(input)).resolves.toEqual(output);
   });
