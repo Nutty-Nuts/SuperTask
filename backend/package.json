@@ -4,7 +4,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:restart": "npm run docker:down && npm run docker:up",
+    "test": "prisma migrate deploy && vitest --reporter=verbose --run",
+    "test:unit": "export TESTING_TYPE=unit ENVIRONMENT=testing && npm run test",
+    "test:integration": "epxort TESTING_TYPE=integration ENVIRONMENT=testing && npm run test",
     "dev": "nodemon index.js"
   },
   "author": "",
