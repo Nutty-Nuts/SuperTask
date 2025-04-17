@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:17.4
 
-    restart: always
+    restart: no
 
     env_file: 
       - path: ./database/.env
@@ -28,7 +28,7 @@ services:
       context: ./backend/
       dockerfile: Dockerfile
 
-    restart: always
+    restart: no
 
     env_file: 
       - path: ./backend/.env
@@ -58,7 +58,7 @@ services:
       context: ./frontend/
       dockerfile: Dockerfile
 
-    restart: always
+    restart: no
 
     env_file: 
       - path: ./frontend/.env
