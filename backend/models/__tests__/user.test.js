@@ -3,8 +3,6 @@ import { test, expect, describe } from "vitest";
 import { prismaMock } from "../../singleton.js";
 import bcrypt from "bcrypt";
 
-const saltRounds = 10;
-
 describe("UNIT TEST SUITE FOR 'createUser()' FUNCTION", () => {
   test("createUser() should create a user if all fields are complete", async () => {
     const expectedInput = {
@@ -12,25 +10,25 @@ describe("UNIT TEST SUITE FOR 'createUser()' FUNCTION", () => {
       email: "janedoe@pubsec.net",
       password: "junkfoodlover123",
     };
+
     const expectedOuptut = {
       name: "Jane Doe",
       email: "janedoe@pubsec.net",
-      password: await bcrypt.hash("junkfoodlover123", saltRounds),
-    };
-    const mockedValue = {
-      name: "Jane Doe",
-      email: "janedoe@pubsec.net",
-      password: await bcrypt.hash("junkfoodlover123", saltRounds),
     };
 
-    prismaMock.user.create.mockResolvedValue(mockedValue);
+    prismaMock.user.create.mockImplementation((input) => input.data);
 
-    await expect(createUser(expectedInput)).resolves.toEqual(expectedOuptut);
+    const user = await createUser(expectedInput);
+
+    expect(user.name).toEqual(expectedOuptut.name);
+    expect(user.email).toEqual(expectedOuptut.email);
+    expect(bcrypt.compareSync(expectedInput.password, user.password)).toBe(
+      true,
+    );
   });
 
   test("createUser() should throw an error if not all fields are complete", async () => {
     const expectedInput = {
-      name: "Jane Doe",
       email: "janedoe@pubsec.net",
       password: "junkfoodlover123",
     };
