@@ -3,6 +3,8 @@ import "dotenv/config";
 
 let config;
 
+console.log(`TESTING_TYPE=${process.env.TESTING_TYPE}`);
+
 if (process.env.TESTING_TYPE === "unit") {
   console.log("Setting up testing vitest configuration for unit testing...");
   console.warn(

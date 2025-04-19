@@ -8,14 +8,15 @@
     "docker:down": "docker compose down",
     "docker:restart": "npm run docker:down && npm run docker:up",
     "test": "vitest --reporter=verbose --run",
-    "test:unit": "export TESTING_TYPE=unit ENVIRONMENT=testing && npm run test",
-    "test:integration": "export TESTING_TYPE=integration ENVIRONMENT=testing && npm run test",
+    "test:unit": "cross-env TESTING_TYPE=unit ENVIRONMENT=testing npm run test",
+    "test:integration": "prisma migrate deploy && cross-env TESTING_TYPE=integration ENVIRONMENT=testing npm run test",
     "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "nodemon": "^3.1.9",
     "prisma": "^6.6.0",
     "supertest": "^7.1.0",
