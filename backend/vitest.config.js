@@ -3,6 +3,8 @@ import "dotenv/config";
 
 let config;
 
+console.log(`TESTING_TYPE=${process.env.TESTING_TYPE}`);
+
 if (process.env.TESTING_TYPE === "unit") {
   console.log("Setting up testing vitest configuration for unit testing...");
   console.warn(
@@ -12,9 +14,16 @@ if (process.env.TESTING_TYPE === "unit") {
     test: {
       clearMocks: true,
       environment: "node",
-      setupFiles: ["./src/singleton.js"],
+      setupFiles: ["./singleton.js"],
       include: ["**/*.test.js"],
-      exclude: ["**/*.integration.test.js"],
+      exclude: [
+        "**/*.integration.test.js",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/cypress/**",
+        "**/.{idea,git,cache,output,temp}/**",
+        "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
+      ],
     },
   });
 } else {
