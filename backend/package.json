@@ -9,7 +9,7 @@
     "docker:restart": "npm run docker:down && npm run docker:up",
     "test": "vitest --reporter=verbose --run",
     "test:unit": "export TESTING_TYPE=unit ENVIRONMENT=testing && npm run test",
-    "test:integration": "export TESTING_TYPE=integration ENVIRONMENT=testing && prisma migrate deploy && npm run test",
+    "test:integration": "export TESTING_TYPE=integration ENVIRONMENT=testing && npm run test",
     "dev": "nodemon index.js"
   },
   "author": "",
